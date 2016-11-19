@@ -22,5 +22,8 @@ module.exports = {
                     callback(err);
                 }
             });
+    },
+    addTranslation: (word, translation, langFrom, langTo, callback) => {
+
     }
 }
