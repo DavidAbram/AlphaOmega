@@ -2,8 +2,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var morgan = require('morgan');
-var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database('translate.db');
+
+var translator = require('./translator');
 
 app.use(morgan('dev'));
 
@@ -28,27 +28,13 @@ app.get('/translate/:langFrom/to/:langTo', (req, res) => {
             res.status(500).send('');
         }
 
-        result = JSON.parse(`{ "${langFrom}": "${word}", "${langTo}": [] }`);
-
-        db.each(`SELECT ${langTo}.word from ${langFrom} 
-                JOIN translation ON ${langFrom}.id == translation.${langFrom}id 
-                JOIN ${langTo} ON ${langTo}.id == translation.${langTo}id 
-                WHERE ${langFrom}.word == '${word}'`
-                , function (err, row) {
-            
-            if (err == null) {
-                result[`${langTo}`].push(row.word);
-            } else {
-                throw err;
-            }
-
-        }, function (err) {
-            if (err == null) {
+        translator.translate(word, langFrom, langTo, (err, result)=>{
+            if(err == null){
                 res.json(result);
             } else {
                 throw err;
             }
-        });
+        })
 
     } catch (ex) {
         console.log(ex);
