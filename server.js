@@ -16,33 +16,28 @@ app.get('/', (req, res) => {
     res.json({ message: 'AΩ' })
 });
 
-app.get('/translate/:lang1/to/:lang2', (req, res) => {
+app.get('/translate/:langFrom/to/:langTo', (req, res) => {
 
     try {
 
-        let lang1 = req.params.lang1;
-        let lang2 = req.params.lang2;
+        let langFrom = req.params.langFrom;
+        let langTo = req.params.langTo;
         let word = req.query.word;
 
-        if (lang1 == undefined || lang2 == undefined || word == undefined) {
+        if (langFrom == undefined || langTo == undefined || word == undefined) {
             res.status(500).send('');
         }
 
-        //console.log("SELECT croatianid, slovenianid, slovenian.word from croatian JOIN translation ON croatian.id == translation.croatianid JOIN slovenian ON slovenian.id == translation.slovenianid");
-        //console.log(`SELECT ${lang1}id, ${lang2}id, ${lang2}.word from ${lang1} JOIN translation ON ${lang1}.id == translation.${lang1}id JOIN ${lang2} ON ${lang2}.id == translation.${lang2}id`);
+        result = JSON.parse(`{ "${langFrom}": "${word}", "${langTo}": [] }`);
 
-        result = JSON.parse(`{ "${lang1}": "${word}", "${lang2}": [] }`);
-
-        console.log(result);
-
-        db.each(`SELECT ${lang2}.word from ${lang1} 
-                JOIN translation ON ${lang1}.id == translation.${lang1}id 
-                JOIN ${lang2} ON ${lang2}.id == translation.${lang2}id 
-                WHERE ${lang1}.word == '${word}'`
+        db.each(`SELECT ${langTo}.word from ${langFrom} 
+                JOIN translation ON ${langFrom}.id == translation.${langFrom}id 
+                JOIN ${langTo} ON ${langTo}.id == translation.${langTo}id 
+                WHERE ${langFrom}.word == '${word}'`
                 , function (err, row) {
             
             if (err == null) {
-                result[`${lang2}`].push(row.word);
+                result[`${langTo}`].push(row.word);
             } else {
                 throw err;
             }
@@ -51,8 +46,6 @@ app.get('/translate/:lang1/to/:lang2', (req, res) => {
             if (err == null) {
                 res.json(result);
             } else {
-
-
                 throw err;
             }
         });
@@ -78,7 +71,7 @@ app.put('/translate', (req, res) => {
 });
 
 app.delete('/translate', (req, res) => {
-    res.js0on(req.body)
+    res.json(req.body)
 });
 
 app.listen(port);
