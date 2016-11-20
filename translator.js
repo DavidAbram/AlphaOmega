@@ -5,7 +5,7 @@ module.exports = {
     translate: (word, langFrom, langTo, callback) => {
         result = JSON.parse(`{ "${langFrom}": "${word}", "${langTo}": [] }`);
 
-        db.each(`SELECT ${langTo}.word from ${langFrom} 
+        db.each(`SELECT ${langTo}.word FROM ${langFrom} 
                 JOIN translation ON ${langFrom}.id == translation.${langFrom}id 
                 JOIN ${langTo} ON ${langTo}.id == translation.${langTo}id 
                 WHERE ${langFrom}.word == '${word}'`
@@ -25,5 +25,11 @@ module.exports = {
     },
     addTranslation: (word, translation, langFrom, langTo, callback) => {
 
+        db.get(`SELECT COUNT(*) AS count FROM ${langFrom} 
+                WHERE word == '${word}'`
+            , (err, result) => {
+                console.log(err, result)
+            })
+            
     }
 }
