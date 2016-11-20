@@ -30,8 +30,33 @@ function addWord(word, lang, callback) {
 }
 
 module.exports = {
+    init: () => {
+
+    },
+    translateById: (id, langFrom, langTo, callback) =>{
+        var result = JSON.parse(`{ "${langFrom}": "", "${langTo}": [] }`)
+
+        db.each(`SELECT ${langFrom}.word as wordFrom, ${langTo}.word FROM ${langFrom} 
+                JOIN translation ON ${langFrom}.id == translation.${langFrom}id 
+                JOIN ${langTo} ON ${langTo}.id == translation.${langTo}id 
+                WHERE ${langFrom}.id == '${id}'`
+            , (err, row) => {
+                if (err == null) {
+                    if(result[`${langFrom}`] == "") result[`${langFrom}`] = row.wordFrom
+                    result[`${langTo}`].push(row.word)
+                } else {
+                    callback(err)
+                }
+            }, (err) => {
+                if (err == null) {
+                    callback(null, result)
+                } else {
+                    callback(err)
+                }
+            });
+    },
     translate: (word, langFrom, langTo, callback) => {
-        result = JSON.parse(`{ "${langFrom}": "${word}", "${langTo}": [] }`);
+        result = JSON.parse(`{ "${langFrom}": "${word}", "${langTo}": [] }`)
 
         db.each(`SELECT ${langTo}.word FROM ${langFrom} 
                 JOIN translation ON ${langFrom}.id == translation.${langFrom}id 
@@ -39,60 +64,54 @@ module.exports = {
                 WHERE ${langFrom}.word == '${word}'`
             , (err, row) => {
                 if (err == null) {
-                    result[`${langTo}`].push(row.word);
+                    result[`${langTo}`].push(row.word)
                 } else {
-                    callback(err);
+                    callback(err)
                 }
             }, (err) => {
                 if (err == null) {
-                    callback(null, result);
+                    callback(null, result)
                 } else {
-                    callback(err);
+                    callback(err)
                 }
             });
     },
     addTranslation: (word, translation, langFrom, langTo, callback) => {
         async.parallel([
             (sync) => {
-                addWord(word, langFrom, sync);
+                addWord(word, langFrom, sync)
             },
             (sync) => {
-                addWord(translation, langTo, sync);
+                addWord(translation, langTo, sync)
             }
         ], function (err, results) {
 
-            db.get(`SELECT * FROM translation WHERE ${results[0].lang}id == '${results[0].id}' AND ${results[1].lang}id == '${results[1].id}'`, (err, result) => {
-                if (err == null) {
-                    if (result == undefined) {
-                        db.get(`INSERT INTO translation (${results[0].lang}id, ${results[1].lang}id) VALUES ('${results[0].id}', ${results[1].id})`
-                            , (err, result) => {
-                                if (err == null) {
-                                    callback(null);
-                                } else {
-                                    callback(err);
-                                }
-                            });
+            db.get(`SELECT * FROM translation 
+                    WHERE ${results[0].lang}id == '${results[0].id}' 
+                    AND ${results[1].lang}id == '${results[1].id}'`
+                , (err, result) => {
+                    if (err == null) {
+                        if (result == undefined) {
+                            db.get(`INSERT INTO translation (${results[0].lang}id, ${results[1].lang}id) 
+                                    VALUES ('${results[0].id}', ${results[1].id})`
+                                , (err, result) => {
+                                    if (err == null) {
+                                        callback(null, { added: true })
+                                    } else {
+                                        callback(err)
+                                    }
+                                });
+                        } else {
+                            callback(null, { added: false })
+                        }
                     } else {
-                        callback(null)
+                        callback(err)
                     }
-                } else {
-                    callback(err);
-                }
-            });
-
-            /*var a = `INSERT INTO translation (${results[0].lang}id, ${results[1].lang}id) VALUES ('${results[0].id}', ${results[1].id})`;
-
-            db.get(`INSERT INTO translation (${results[0].lang}id, ${results[1].lang}id) VALUES ('${results[0].id}', ${results[1].id})`
-            , (err, result) =>{
-                if(err == null){
-                    callback(null, result);
-                } else {
-                    callback(err);
-                }
-            });
-
-            callback(err, results);*/
+                });
         });
+
+    },
+    removeTranslation: (word, translation, removeTranslation, langFrom, langTo, callback) => {
 
     }
 }

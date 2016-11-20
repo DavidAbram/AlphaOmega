@@ -11,7 +11,7 @@ app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 8080
 
 app.get('/', (req, res) => {
     res.json({ message: 'AΩ' })
@@ -24,19 +24,40 @@ app.get('/translate/:langFrom/to/:langTo', (req, res) => {
         let langFrom = req.params.langFrom
         let langTo = req.params.langTo
         let word = req.query.word
+        let id = req.query.id
 
-        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || word == undefined) {
+        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || (word == undefined && id == undefined)) {
+
             res.status(500).send('')
+
         } else {
-            translator.translate(word, langFrom, langTo, (err, result) => {
-                if (err == null) {
-                    res.json(result)
-                } else {
-                    throw err
-                }
-            })
+
+            if (id == undefined) {
+
+                translator.translate(word, langFrom, langTo, (err, result) => {
+                    if (err == null) {
+                        res.json(result)
+                    } else {
+                        throw err
+                    }
+                })
+
+            } else {
+
+                translator.translateById(id, langFrom, langTo, (err, result) => {
+                    if (err == null) {
+                        res.json(result)
+                    } else {
+                        throw err
+                    }
+                })
+
+            }
+
         }
+
     } catch (ex) {
+
         console.log(ex);
         res.status(500).send('')
 
@@ -54,19 +75,27 @@ app.post('/translate', (req, res) => {
         let translation = req.body.translation
 
         if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || word == undefined || translation == undefined) {
+
             res.status(500).send('')
+
         } else {
             translator.addTranslation(word, translation, langFrom, langTo, (err, result) => {
                 if (err == null) {
-                    res.json(result);
+                    if (result.added) {
+                        res.status(201).send('')
+                    } else {
+                        res.status(409).send('')
+                    }
                 } else {
-                    throw err;
+                    throw err
                 }
             });
         }
     } catch (ex) {
-        console.log(ex);
+
+        console.log(ex)
         res.status(500).send('')
+
     }
 })
 
