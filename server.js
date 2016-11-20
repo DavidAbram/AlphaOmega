@@ -46,15 +46,27 @@ app.get('/translate/:langFrom/to/:langTo', (req, res) => {
 
 app.post('/translate', (req, res) => {
 
-    let langFrom = req.body.langFrom
-    let langTo = req.body.langTo
-    let word = req.body.word
-    let translation = req.body.translation
+    try {
 
-    if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || word == undefined || translation == undefined) {
+        let langFrom = req.body.langFrom
+        let langTo = req.body.langTo
+        let word = req.body.word
+        let translation = req.body.translation
+
+        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || word == undefined || translation == undefined) {
+            res.status(500).send('')
+        } else {
+            translator.addTranslation(word, translation, langFrom, langTo, (err, result) => {
+                if (err == null) {
+                    res.json(result);
+                } else {
+                    throw err;
+                }
+            });
+        }
+    } catch (ex) {
+        console.log(ex);
         res.status(500).send('')
-    } else {
-        res.json(req.body)
     }
 })
 

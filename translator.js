@@ -1,5 +1,6 @@
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('translate.db');
+var async = require('async');
 
 module.exports = {
     translate: (word, langFrom, langTo, callback) => {
@@ -23,13 +24,34 @@ module.exports = {
                 }
             });
     },
-    addTranslation: (word, translation, langFrom, langTo, callback) => {
-
-        db.get(`SELECT COUNT(*) AS count FROM ${langFrom} 
-                WHERE word == '${word}'`
+    addWord: (word, lang) =>{
+        
+        db.get(`SELECT * FROM ${langFrom} WHERE word == '${word}'`
             , (err, result) => {
-                console.log(err, result)
+                if (err == null) {
+
+                    if (result == undefined) {
+                        db.run(`INSERT INTO ${langFrom} (word)
+                         VALUES ('${word}')`
+                            , function(err) {
+                                if (err == null) {
+                                    callback(null, {id: this.lastID})
+                                } else {
+                                    callback(err)
+                                }
+                            });
+
+                    } else {
+                        callback(null, {id: result.id})
+                    }
+                } else {
+                    callback(err);
+                }
             })
-            
+
+    },
+    addTranslation: (word, translation, langFrom, langTo, callback) => {
+        
+
     }
 }
