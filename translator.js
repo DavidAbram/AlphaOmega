@@ -2,6 +2,14 @@ var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('translate.db');
 var async = require('async');
 
+function removeWordById(wordId, lang, callback) {
+    
+    db.get(`DELETE FROM ${lang} WHERE id == ${wordId}`, (err) => {
+        callback(err);
+    });
+
+}
+
 function addWord(word, lang, callback) {
 
     db.get(`SELECT * FROM ${lang} WHERE word == '${word}'`
@@ -111,7 +119,26 @@ module.exports = {
         });
 
     },
-    removeTranslation: (word, translation, removeTranslation, langFrom, langTo, callback) => {
-
+    removeTranslationById: (wordId, translationId, removeTranslation, langFrom, langTo, callback) =>{
+        db.run(`DELETE FROM translation WHERE ${langFrom}id == ${wordId} && ${langTo}id == ${translationId}`, (err) => {
+            if(err == null) {
+                if(removeTranslation){
+                    async.waterfall([
+                        (sync) => { 
+                            removeWordById(wordId, langFrom, sync);
+                        },
+                        (sync) => { 
+                            removeWordById(translationId, langTo, sync)
+                        }
+                    ], (err) => {
+                        callback(err)
+                    });
+                } else {
+                    callback(null)
+                }
+            } else {
+                callback(err)
+            }
+        });
     }
 }
