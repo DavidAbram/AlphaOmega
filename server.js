@@ -17,6 +17,37 @@ app.get('/', (req, res) => {
     res.json({ message: 'AΩ' })
 });
 
+app.get('/words/:lang', (req, res) => {
+
+    try {
+
+        let lang = req.params.lang
+
+        if(!config.langs.includes(lang)){
+
+            res.status(500).send('')
+
+        } else {
+
+            translator.getDictionary(lang, (err, result) => {
+                if(err == null) {
+                    res.json(result)
+                } else {
+                    throw err
+                }
+            })
+
+        }
+
+    } catch(ex) {
+        
+        console.log(ex);
+        res.status(500).send('')
+
+    }
+
+})
+
 app.get('/translate/:langFrom/to/:langTo', (req, res) => {
 
     try {
@@ -100,7 +131,34 @@ app.post('/translate', (req, res) => {
 })
 
 app.delete('/translate', (req, res) => {
-    res.json(req.body)
+
+    try {
+
+        let langFrom = req.body.langFrom
+        let langTo = req.body.langTo
+        let wordId = req.body.wordId
+        let translationId = req.body.translationId
+        let removeTranslation = req.body.removeTranslation
+
+        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || wordId == undefined || translationId == undefined) {
+
+            res.status(500).send('')
+
+        } else {
+            translator.removeTranslationById(wordId, translationId, removeTranslation, langFrom, langTo, (err, result) => {
+                if (err == null) {
+                    res.status(200).send('')
+                } else {
+                    throw err
+                }
+            });
+        }
+    } catch (ex) {
+
+        console.log(ex)
+        res.status(500).send('')
+
+    }
 });
 
 app.listen(port);

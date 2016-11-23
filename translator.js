@@ -5,8 +5,8 @@ var async = require('async');
 function removeWordById(wordId, lang, callback) {
     
     db.get(`DELETE FROM ${lang} WHERE id == ${wordId}`, (err) => {
-        callback(err);
-    });
+        callback(err)
+    })
 
 }
 
@@ -31,7 +31,7 @@ function addWord(word, lang, callback) {
                     callback(null, { id: result.id, lang: lang })
                 }
             } else {
-                callback(err);
+                callback(err)
             }
         })
 
@@ -40,6 +40,20 @@ function addWord(word, lang, callback) {
 module.exports = {
     init: () => {
 
+    },
+    getDictionary: (lang, callback) =>{
+        
+        var result = { words : []}
+
+        db.each(`SELECT * FROM ${lang}`,  (err, row) => {
+            result.words.push(row)
+        }, (err) => {
+            if(err == null) {
+                callback(null, result)
+            } else {
+                callback(err)
+            }
+        })
     },
     translateById: (id, langFrom, langTo, callback) =>{
         var result = JSON.parse(`{ "${langFrom}": "", "${langTo}": [] }`)
@@ -61,7 +75,7 @@ module.exports = {
                 } else {
                     callback(err)
                 }
-            });
+            })
     },
     translate: (word, langFrom, langTo, callback) => {
         result = JSON.parse(`{ "${langFrom}": "${word}", "${langTo}": [] }`)
@@ -120,15 +134,15 @@ module.exports = {
 
     },
     removeTranslationById: (wordId, translationId, removeTranslation, langFrom, langTo, callback) =>{
-        db.run(`DELETE FROM translation WHERE ${langFrom}id == ${wordId} && ${langTo}id == ${translationId}`, (err) => {
+        db.run(`DELETE FROM translation WHERE ${langFrom}id == ${wordId} AND ${langTo}id == ${translationId}`, (err) => {
             if(err == null) {
                 if(removeTranslation){
                     async.waterfall([
                         (sync) => { 
-                            removeWordById(wordId, langFrom, sync);
+                            removeWordById(wordId, langFrom, sync)
                         },
-                        (sync) => { 
-                            removeWordById(translationId, langTo, sync)
+                        (sync1) => { 
+                            removeWordById(translationId, langTo, sync1)
                         }
                     ], (err) => {
                         callback(err)
