@@ -39,7 +39,11 @@ function addWord(word, lang, callback) {
 
 module.exports = {
     init: () => {
-
+        db.serialize(() => {
+            db.run("CREATE TABLE if not exists croatian (id Integer PRIMARY KEY AUTOINCREMENT, word TEXT)")
+            db.run("CREATE TABLE if not exists slovenian (id Integer PRIMARY KEY AUTOINCREMENT, word TEXT)")
+            db.run("CREATE TABLE if not exists translation (slovenianid INT, croatianid INT, PRIMARY KEY (slovenianid, croatianid))")
+        });
     },
     getDictionary: (lang, callback) =>{
         

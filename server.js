@@ -13,6 +13,8 @@ app.use(bodyParser.json())
 
 var port = process.env.PORT || 8080
 
+translator.init()
+
 app.get('/', (req, res) => {
     res.json({ message: 'AΩ' })
 });
