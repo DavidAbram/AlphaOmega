@@ -1,15 +1,22 @@
 var express = require('express')
+var OauthServer = require('express-oauth-server')
+
 var bodyParser = require('body-parser')
 var morgan = require('morgan')
 
 var translator = require('./translator')
 var config = require('./config')
 
+var model = require('./model')
+var oauth = new OauthServer({ model: model, grants: ['password'], debug: true })
+
 var app = express()
 app.use(morgan('dev'))
+app.use(oauth.authenticate())
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+app.use(app.oauth.authorize())
 
 var port = process.env.PORT || 8080
 
