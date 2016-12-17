@@ -40,10 +40,10 @@ function addWord(word, lang, callback) {
 module.exports = {
     init: () => {
         db.serialize(() => {
-            db.run("CREATE TABLE if not exists croatian (id INT PRIMARY KEY AUTOINCREMENT, word TEXT)")
-            db.run("CREATE TABLE if not exists slovenian (id INT PRIMARY KEY AUTOINCREMENT, word TEXT)")
-            db.run("CREATE TABLE if not exists translation (slovenianid INT, croatianid INT, PRIMARY KEY (slovenianid, croatianid))")
-            db.run("CREATE TABLE if not exists users (id INT PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, hashedPassword: TEXT, salt: TEXT)")
+            db.run("CREATE TABLE if not exists croatian (id INTEGER PRIMARY KEY AUTOINCREMENT, word TEXT)")
+            db.run("CREATE TABLE if not exists slovenian (id INTEGER PRIMARY KEY AUTOINCREMENT, word TEXT)")
+            db.run("CREATE TABLE if not exists translation (slovenianid INTEGER, croatianid INTEGER, PRIMARY KEY (slovenianid, croatianid))")
+            db.run("CREATE TABLE if not exists users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, hashedPassword TEXT, salt TEXT)")
         });
     },
     getDictionary: (lang, callback) =>{
