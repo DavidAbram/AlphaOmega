@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "nodemon --watch . server.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +24,8 @@
     "express": "4.14.0",
     "morgan": "1.7.0",
     "sqlite3": "3.1.8"
+  },
+  "devDependencies": {
+    "nodemon": "1.11.0"
   }
 }

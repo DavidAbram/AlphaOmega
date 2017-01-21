@@ -59,7 +59,7 @@ app.get('/translate/:langFrom/to/:langTo', (req, res) => {
         let word = req.query.word
         let id = req.query.id
 
-        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || (word == undefined && id == undefined)) {
+        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || (word === undefined && id === undefined)) {
 
             res.status(500).send('')
 
@@ -107,7 +107,7 @@ app.post('/translate', (req, res) => {
         let word = req.body.word
         let translation = req.body.translation
 
-        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || word == undefined || translation == undefined) {
+        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || word === undefined || translation === undefined) {
 
             res.status(500).send('')
 
@@ -142,7 +142,7 @@ app.delete('/translate', (req, res) => {
         let translationId = req.body.translationId
         let removeTranslation = req.body.removeTranslation
 
-        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom == undefined || langTo == undefined || wordId == undefined || translationId == undefined) {
+        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || wordId === undefined || translationId === undefined) {
 
             res.status(500).send('')
 
