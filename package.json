@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/DavidAbram/AlphaOmega#readme",
   "dependencies": {
+    "express": "^4.14.0",
+    "mongoose": "^4.7.7"
   },
   "devDependencies": {
     "nodemon": "1.11.0"
