@@ -23,6 +23,7 @@ app.get('/words/:lang', (req, res) => {
 
     try {
 
+        if(!req.get('Authorization')) res.status(403).send('');
         translator.auth(req.get('Authorization'), (err) => {
             if (err == null) {
 
@@ -134,6 +135,7 @@ app.get('/translate/:langFrom/to/:langTo', (req, res) => {
         let id = req.query.id
 
 
+        if(!req.get('Authorization')) res.status(403).send('');
         translator.auth(req.get('Authorization'), (err) => {
             if (err == null) {
 
@@ -190,6 +192,7 @@ app.post('/translate', (req, res) => {
         let word = req.body.word
         let translation = req.body.translation
 
+        if(!req.get('Authorization')) res.status(403).send('');
         translator.auth(req.get('Authorization'), (err) => {
             if (err == null) {
 
@@ -231,6 +234,8 @@ app.delete('/translate', (req, res) => {
         let wordId = req.body.wordId
         let translationId = req.body.translationId
         let removeTranslation = req.body.removeTranslation
+
+        if(!req.get('Authorization')) res.status(403).send('');
 
         translator.auth(req.get('Authorization'), (err) => {
             if (err == null) {
