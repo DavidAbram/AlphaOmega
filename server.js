@@ -25,14 +25,14 @@ app.get('/words/:lang', (req, res) => {
 
         let lang = req.params.lang
 
-        if(!config.langs.includes(lang)){
+        if (!config.langs.includes(lang)) {
 
             res.status(500).send('')
 
         } else {
 
             translator.getDictionary(lang, (err, result) => {
-                if(err == null) {
+                if (err == null) {
                     res.json(result)
                 } else {
                     throw err
@@ -41,14 +41,84 @@ app.get('/words/:lang', (req, res) => {
 
         }
 
-    } catch(ex) {
-        
+    } catch (ex) {
+
         console.log(ex);
         res.status(500).send('')
 
     }
 
 })
+
+app.get('/users/', (req, res) => {
+
+    try {
+
+
+        translator.users((err, result) => {
+            if (err == null) {
+                res.json(result)
+            } else {
+                throw err
+            }
+        })
+
+    } catch (ex) {
+
+        console.log(ex);
+        res.status(500).send('')
+
+    }
+
+})
+
+app.post('/login', (req, res) => {
+    try {
+
+        let username = req.body.username
+        let password = req.body.password
+
+        if (username === undefined || password === undefined) {
+            res.status(500).send('')
+        } else {
+            translator.login(username, password, (err) => {
+                if (err == null) {
+                    res.status(201).send('')
+                } else {
+                    throw err
+                }
+            });
+        }
+
+    } catch (ex) {
+        console.log(ex);
+        res.status(500).send('')
+    }
+});
+
+app.post('/register', (req, res) => {
+    try {
+
+        let username = req.body.username
+        let password = req.body.password
+
+        if (username === undefined || password === undefined) {
+            res.status(500).send('')
+        } else {
+            translator.register(username, password, (err) => {
+                if (err == null) {
+                    res.status(201).send('')
+                } else {
+                    throw err
+                }
+            });
+        }
+
+    } catch (ex) {
+        console.log(ex);
+        res.status(500).send('')
+    }
+});
 
 app.get('/translate/:langFrom/to/:langTo', (req, res) => {
 
