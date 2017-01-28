@@ -50,6 +50,17 @@ module.exports = {
             db.run("CREATE TABLE if not exists users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, hashedPassword TEXT, token TEXT)")
         });
     },
+    auth: (token, callback) => {
+        token = token.slice(7);
+        db.get(`SELECT * FROM users WHERE token == '${token}'`, (err, result) => {
+            if(err == null && result !== undefined){
+                console.log(result);
+                callback(null)
+            } else {
+                callback('DENIED')
+            }
+        });
+    },
     register: (username, password, callback) => {
       bcrypt.hash(password, 10, function (err, hash) {
           if(err == null) {
@@ -69,7 +80,22 @@ module.exports = {
       });
     },
     login: (username, password, callback) => {
-
+        db.get(`SELECT * FROM users WHERE username == '${username}'`, (err, result) => {
+            if(err == null){
+                bcrypt.compare(password, result.hashedPassword, function(err, res) {
+                    if(err == null) {
+                        callback(null, {
+                            accessToken: result.token,
+                            grantType: 'bearer'
+                        })
+                    } else {
+                        callback(err)
+                    }
+                });
+            } else {
+                callback(err)
+            }
+        });
     },
     users: (callback) => {
         var result = { users : []}

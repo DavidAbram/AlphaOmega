@@ -23,24 +23,30 @@ app.get('/words/:lang', (req, res) => {
 
     try {
 
-        let lang = req.params.lang
+        translator.auth(req.get('Authorization'), (err) => {
+            if (err == null) {
 
-        if (!config.langs.includes(lang)) {
+                let lang = req.params.lang
 
-            res.status(500).send('')
+                if (!config.langs.includes(lang)) {
 
-        } else {
+                    res.status(500).send('')
 
-            translator.getDictionary(lang, (err, result) => {
-                if (err == null) {
-                    res.json(result)
                 } else {
-                    throw err
+
+                    translator.getDictionary(lang, (err, result) => {
+                        if (err == null) {
+                            res.json(result)
+                        } else {
+                            throw err
+                        }
+                    })
+
                 }
-            })
-
-        }
-
+            } else {
+                res.status(403).send('');
+            }
+        })
     } catch (ex) {
 
         console.log(ex);
@@ -53,8 +59,6 @@ app.get('/words/:lang', (req, res) => {
 app.get('/users/', (req, res) => {
 
     try {
-
-
         translator.users((err, result) => {
             if (err == null) {
                 res.json(result)
@@ -81,9 +85,9 @@ app.post('/login', (req, res) => {
         if (username === undefined || password === undefined) {
             res.status(500).send('')
         } else {
-            translator.login(username, password, (err) => {
+            translator.login(username, password, (err, result) => {
                 if (err == null) {
-                    res.status(201).send('')
+                    res.json(result)
                 } else {
                     throw err
                 }
@@ -129,35 +133,44 @@ app.get('/translate/:langFrom/to/:langTo', (req, res) => {
         let word = req.query.word
         let id = req.query.id
 
-        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || (word === undefined && id === undefined)) {
 
-            res.status(500).send('')
+        translator.auth(req.get('Authorization'), (err) => {
+            if (err == null) {
 
-        } else {
+                if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || (word === undefined && id === undefined)) {
 
-            if (id == undefined) {
+                    res.status(500).send('')
 
-                translator.translate(word, langFrom, langTo, (err, result) => {
-                    if (err == null) {
-                        res.json(result)
+                } else {
+
+                    if (id == undefined) {
+
+                        translator.translate(word, langFrom, langTo, (err, result) => {
+                            if (err == null) {
+                                res.json(result)
+                            } else {
+                                throw err
+                            }
+                        })
+
                     } else {
-                        throw err
-                    }
-                })
 
+                        translator.translateById(id, langFrom, langTo, (err, result) => {
+                            if (err == null) {
+                                res.json(result)
+                            } else {
+                                throw err
+                            }
+                        })
+
+                    }
+
+                }
             } else {
-
-                translator.translateById(id, langFrom, langTo, (err, result) => {
-                    if (err == null) {
-                        res.json(result)
-                    } else {
-                        throw err
-                    }
-                })
-
+                res.status(403).send('');
             }
+        });
 
-        }
 
     } catch (ex) {
 
@@ -177,23 +190,30 @@ app.post('/translate', (req, res) => {
         let word = req.body.word
         let translation = req.body.translation
 
-        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || word === undefined || translation === undefined) {
+        translator.auth(req.get('Authorization'), (err) => {
+            if (err == null) {
 
-            res.status(500).send('')
+                if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || word === undefined || translation === undefined) {
 
-        } else {
-            translator.addTranslation(word, translation, langFrom, langTo, (err, result) => {
-                if (err == null) {
-                    if (result.added) {
-                        res.status(201).send('')
-                    } else {
-                        res.status(409).send('')
-                    }
+                    res.status(500).send('')
+
                 } else {
-                    throw err
+                    translator.addTranslation(word, translation, langFrom, langTo, (err, result) => {
+                        if (err == null) {
+                            if (result.added) {
+                                res.status(201).send('')
+                            } else {
+                                res.status(409).send('')
+                            }
+                        } else {
+                            throw err
+                        }
+                    });
                 }
-            });
-        }
+            } else {
+                res.status(403).send('');
+            }
+        })
     } catch (ex) {
 
         console.log(ex)
@@ -212,19 +232,26 @@ app.delete('/translate', (req, res) => {
         let translationId = req.body.translationId
         let removeTranslation = req.body.removeTranslation
 
-        if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || wordId === undefined || translationId === undefined) {
+        translator.auth(req.get('Authorization'), (err) => {
+            if (err == null) {
 
-            res.status(500).send('')
+                if (!config.langs.includes(langFrom) || !config.langs.includes(langTo) || langFrom === undefined || langTo === undefined || wordId === undefined || translationId === undefined) {
 
-        } else {
-            translator.removeTranslationById(wordId, translationId, removeTranslation, langFrom, langTo, (err, result) => {
-                if (err == null) {
-                    res.status(200).send('')
+                    res.status(500).send('')
+
                 } else {
-                    throw err
+                    translator.removeTranslationById(wordId, translationId, removeTranslation, langFrom, langTo, (err, result) => {
+                        if (err == null) {
+                            res.status(200).send('')
+                        } else {
+                            throw err
+                        }
+                    });
                 }
-            });
-        }
+            } else {
+                res.status(403).send('');
+            }
+        })
     } catch (ex) {
 
         console.log(ex)
