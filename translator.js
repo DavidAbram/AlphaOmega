@@ -86,7 +86,7 @@ module.exports = {
                     if(err == null) {
                         callback(null, {
                             accessToken: result.token,
-                            grantType: 'bearer'
+                            grantType: 'Bearer'
                         })
                     } else {
                         callback(err)
