@@ -1,7 +1,7 @@
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('translate.db');
 var async = require('async');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 var btoa = require('btoa');
 var guid = require('guid');
 
